@@ -11,10 +11,10 @@
 // });
 
 
-let userInput = prompt("이름을 입력하세요");
-console.log(userInput);
+// let userInput = prompt("이름을 입력하세요");
+// console.log(userInput);
 
-let gameEnd = false;
+// let gameEnd = false;
 
 playGame();
 
@@ -35,22 +35,27 @@ function playGame() {
     const computerNumber = getRandomNumber();
     console.log(computerNumber);
 
-    let result = false;
+    // let result = false;
 
-    while(!result){
-        result = playRound();
-    }
-    closeRound();
+    // while(!result){
+    //     result = playRound();
+    // }
+    // closeRound();
     
 }
 
 function getRandomNumber() {
-    let randomNumber;
-    let randomNumberString = "";
-    randomNumberString += Math.floor(Math.random() * 9 + 1);
-    randomNumberString += Math.floor(Math.random() * 9 + 1);
-    randomNumberString += Math.floor(Math.random() * 9 + 1);
-    console.log("randomNumberString: ", randomNumberString);
-    randomNumber = parseInt(randomNumberString);
-    return randomNumber;
+    const numberSet = new Set();
+    while (numberSet.size != 3){
+        let currentNumber = Math.floor(Math.random() * 9 + 1);
+        numberSet.add(currentNumber);
+    }    
+    console.log("numberSet: ", numberSet.toString());
+    return numberSet;
+}
+
+function playRound() {
+    let result;
+
+    return true;
 }
