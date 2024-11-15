@@ -1,8 +1,17 @@
-// const readline = require("node:readline");
-// const {stdin:input, stdout:output} = require("node:process");
-// const rl = readline.createInterface({
-//     input, output
-// });
+const readline = require("node:readline");
+const {stdin:input, stdout:output} = require("node:process");
+const rl = readline.createInterface({
+    input, output
+});
+
+// 입력을 기다리는 함수
+function askQuestion(query) {
+  return new Promise((resolve) => {
+    rl.question(query, (answer) => {
+      resolve(answer); // 입력 값을 resolve
+    });
+  });
+}
 
 // const rl = readline.createInterface({
 //     input : process.stdin,
@@ -36,20 +45,9 @@
 //     }
 // }
 
-// function playGame() {
-//     const computerNumber = getRandomNumberArray();
-//     console.log(computerNumber);
 
-//     let result = false;
 
-//     while(!result){
-//         result = playRound(computerNumber);
-//     }
-//     // closeRound();
-    
-// }
-
-console.log(getRandomNumberArray().toString());
+//console.log(getRandomNumberArray().toString());
 
 function getRandomNumberArray() {
     const numberArray = [];
@@ -64,34 +62,68 @@ function getRandomNumberArray() {
     return numberArray;
 }
 
-// let a, b = checkMatch('123', new Set([1, 2, 3]));
+// let a, b = checkMatch('123', [3, 1, 2]);
 // console.log(a, b);
 
-// function checkMatch(answer, computerNumber){
-//     let strikeCount = 0;
-//     let ballCount = 0;
-//     let copySet = computerNumber;
+function checkMatch(answer, computerNumber){
+    let strikeCount = 0;
+    let ballCount = 0;
 
-//     for (let i = 0; i < 3; i++){
-//         if (parseInt(answer[i]) == computerNumber[i]) {
-//             strikeCount++;
-//             copySet.delete(computerNumber[i]);
-//         }
-//     }
-//     answer.split('').filter((char) => {
-//         if (copySet.has(char)){
-//             ballCount++;
-//         }
-//     })
-//     return { strikeCount, ballCount };
-// }
+    answer.split("").filter((userNumber, userDigit) => {
+        computerNumber.filter((computerNumber, computerDigit) => {
+            if (userNumber == computerNumber) {
+                if (userDigit == computerDigit) {
+                    ++strikeCount;
+                }else{
+                    ++ballCount;
+                }
+            }    
+        })        
+    })
+
+    return { strikeCount, ballCount };
+}
 
 
-// function playRound(computerNumber) {
-//     let result;
-//     rl.question("숫자를 입력하세요.", (answer) => {
-        
-//     });
+function playRound(computerNumber) {
+  let result = false;
+  
+  const myPromise = new Promise((printRoundResult) => {
+    rl.question("숫자를 입력하세요.", (answer) => {
+      printRoundResult(answer, computerNumber);
+    });
+    return result;
+  }); 
+ 
+}
+
+function printRoundResult(answer, computerNumber) {
+  let matchResult = checkMatch(answer, computerNumber);
+    if (matchResult.strikeCount == 3) {
+
+        result = true
+    }
+    let resultString = "";
+    if (matchResult.ballCount != 0) {
+        resultString = `${matchResult.ballCount}볼 `;
+    }
+    if (matchResult.strikeCount != 0){
+        resultString += `${matchResult.strikeCount}스트라이크`;
+    }
+}
+
+function playGame() {
+  const computerNumber = getRandomNumberArray();
+  console.log(computerNumber);
+
+  let result = false;
+
+  while(!result){
+      result = playRound(computerNumber);
+
+  }
+  // closeRound();
     
-//     return true;
-// }
+}
+
+playGame()
