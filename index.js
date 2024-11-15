@@ -36,56 +36,62 @@
 //     }
 // }
 
-function playGame() {
-    const computerNumber = getRandomNumber();
-    console.log(computerNumber);
+// function playGame() {
+//     const computerNumber = getRandomNumberArray();
+//     console.log(computerNumber);
 
-    let result = false;
+//     let result = false;
 
-    while(!result){
-        result = playRound(computerNumber);
-    }
-    // closeRound();
+//     while(!result){
+//         result = playRound(computerNumber);
+//     }
+//     // closeRound();
     
-}
+// }
 
-function getRandomNumber() {
-    const numberSet = new Set();
-    while (numberSet.size != 3){
+console.log(getRandomNumberArray().toString());
+
+function getRandomNumberArray() {
+    const numberArray = [];
+
+    while (numberArray.length != 3){
         let currentNumber = Math.floor(Math.random() * 9 + 1);
-        numberSet.add(currentNumber);
-    }    
-    console.log("numberSet: ", numberSet.values().toString());
-    return numberSet;
-}
-
-let a, b = checkMatch('123', new Set([1, 2, 3]));
-console.log(a, b);
-
-function checkMatch(answer, computerNumber){
-    let strikeCount=0, ballCount=0;
-    let copySet = computerNumber;
-
-    for(let i; i<3; i++){
-        if (parseInt(answer[i]) == computerNumber[i]) {
-            strikeCount++;
-            copySet.delete(computerNumber[i]);
+        if (!numberArray.includes(currentNumber)) {
+            numberArray.push(currentNumber);
         }
     }
-    answer.split('').filter((char) => {
-        if (copySet.has(char)){
-            ballCount++;
-        }
-    })
-    return {strikeCount, ballCount};
+
+    return numberArray;
 }
 
+// let a, b = checkMatch('123', new Set([1, 2, 3]));
+// console.log(a, b);
 
-function playRound(computerNumber) {
-    let result;
-    rl.question("숫자를 입력하세요.", (answer) => {
+// function checkMatch(answer, computerNumber){
+//     let strikeCount = 0;
+//     let ballCount = 0;
+//     let copySet = computerNumber;
+
+//     for (let i = 0; i < 3; i++){
+//         if (parseInt(answer[i]) == computerNumber[i]) {
+//             strikeCount++;
+//             copySet.delete(computerNumber[i]);
+//         }
+//     }
+//     answer.split('').filter((char) => {
+//         if (copySet.has(char)){
+//             ballCount++;
+//         }
+//     })
+//     return { strikeCount, ballCount };
+// }
+
+
+// function playRound(computerNumber) {
+//     let result;
+//     rl.question("숫자를 입력하세요.", (answer) => {
         
-    });
+//     });
     
-    return true;
-}
+//     return true;
+// }
