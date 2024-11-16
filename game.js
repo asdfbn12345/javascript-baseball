@@ -1,3 +1,4 @@
+const scoreBoard = require("./scoreBoard");
 const readline = require("node:readline");
 const { stdin: input, stdout: output } = require("node:process");
 const rl = readline.createInterface({
@@ -5,34 +6,28 @@ const rl = readline.createInterface({
   output,
 });
 
-const NUMBER_OF_DIGITS = 3;
+const NUMBER_BASEBALL_DIGITS = 3;
 const HIGHEST_DIGIT = 9;
 const LOWEST_DIGIT = 1;
 
-async function play() {
-  let userInput = 1;
-  while (userInput != 9) {
+async function start() {
+  let userInput = "";
+  let bStopGame = false;
+
+  while (!bStopGame) {
     await askQuestion(
-      "게임을 새로 시작하려면 1, 종료하려면 9를 입력하세요."
+      "게임을 새로 시작하려면 1, 종료하려면 9를 입력하세요. "
     ).then((input) => {
       userInput = input;
     });
+
     switch (userInput) {
       case "1":
-        const computerNumber = getRandomNumberArray(NUMBER_OF_DIGITS);
-        console.log("컴퓨터가 숫자를 뽑았습니다.");
-        console.log(computerNumber);
-
-        let result = false;
-
-        while (!result) {
-          result = await playRound(computerNumber);
-        }
-        console.log("3개의 숫자를 모두 맞히셨습니다.");
-        console.log("-------게임 종료-------");
+        await playGame();
         break;
       case "9":
-        console.log("애플리케이션이 종료되었습니다.");
+        scoreBoard.showApplicationEnd();
+        bStopGame = true;
         break;
     }
   }
@@ -46,12 +41,26 @@ function askQuestion(query) {
   });
 }
 
+async function playGame() {
+  const computerNumber = getRandomNumberArray(NUMBER_BASEBALL_DIGITS);
+  scoreBoard.showGameSetting(computerNumber);
 
-function getRandomNumberArray(digit) {
+  let bNextInning = true;
+
+  while (bNextInning) {
+    bNextInning = await playInning(computerNumber);
+  }
+
+  scoreBoard.showGameEnd();
+}
+
+function getRandomNumberArray(digits) {
   const numberArray = [];
 
-  while (numberArray.length != digit) {
-    let currentNumber = Math.floor(Math.random() * HIGHEST_DIGIT + LOWEST_DIGIT);
+  while (numberArray.length != digits) {
+    let currentNumber = Math.floor(
+      Math.random() * HIGHEST_DIGIT + LOWEST_DIGIT
+    );
     if (!numberArray.includes(currentNumber)) {
       numberArray.push(currentNumber);
     }
@@ -60,35 +69,31 @@ function getRandomNumberArray(digit) {
   return numberArray;
 }
 
-async function playRound(computerNumber) {
-  let result = false;
-  await askQuestion("숫자를 입력하세요.").then((answer) => {
-    let matchResult = checkMatch(answer, computerNumber);
-    if (matchResult.strikeCount == NUMBER_OF_DIGITS) {
-      result = true;
+// 야구 용어 참고 사이트: https://skinnonews.com/archives/28782
+// 변수명 등을 조금 더 "야구스럽게" 바꿔보았습니다.
+async function playInning(computerNumber) {
+  let bGameFinished = true;
+
+  await askQuestion("숫자를 입력하세요. ").then((answer) => {
+    let inningResult = checkBallCount(answer.split(""), computerNumber);
+    if (inningResult.strikeCount == NUMBER_BASEBALL_DIGITS) {
+      bGameFinished = false;
     }
 
-    let resultString = "";
-    if (matchResult.ballCount != 0) {
-      resultString = `${matchResult.ballCount}볼 `;
-    }
-    if (matchResult.strikeCount != 0) {
-      resultString += `${matchResult.strikeCount}스트라이크`;
-    }
-    if (matchResult.ballCount == 0 && matchResult.strikeCount == 0) {
-      resultString = "낫싱";
-    }
-    console.log(resultString);
+    scoreBoard.showBallCount(inningResult);
   });
 
-  return result;
+  return bGameFinished;
 }
 
-function checkMatch(answer, computerNumber) {
+// 야구 용어로, 스트라이크, 볼, 아웃을 통틀어 볼 카운트라고 부르더라구요.
+// 그래서, 아웃인지도 볼 카운트 함수에서 다루면 좋을 것 같습니다.
+function checkBallCount(userNumber, computerNumber) {
   let strikeCount = 0;
   let ballCount = 0;
+  let out = false;
 
-  answer.split("").filter((userNumber, userDigit) => {
+  userNumber.filter((userNumber, userDigit) => {
     computerNumber.filter((computerNumber, computerDigit) => {
       if (userNumber == computerNumber) {
         if (userDigit == computerDigit) {
@@ -100,7 +105,8 @@ function checkMatch(answer, computerNumber) {
     });
   });
 
-  return { strikeCount, ballCount };
+  out = strikeCount == 0 && ballCount == 0;
+  return { strikeCount, ballCount, out };
 }
 
-exports.play = play;
+exports.start = start;
