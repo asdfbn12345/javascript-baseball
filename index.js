@@ -1,3 +1,3 @@
-const game = require("./game.js");
+const numberBaseball = require("./numberBaseball.js");
 
-game.start();
+numberBaseball.start();
