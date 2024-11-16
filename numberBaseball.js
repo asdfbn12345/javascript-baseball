@@ -72,18 +72,18 @@ function getRandomNumberArray(digits) {
 // 야구 용어 참고 사이트: https://skinnonews.com/archives/28782
 // 변수명 등을 조금 더 "야구스럽게" 바꿔보았습니다.
 async function playInning(computerNumber) {
-  let bGameFinished = true;
+  let bNextInning = true;
 
   await askQuestion("숫자를 입력하세요. ").then((answer) => {
     let inningResult = checkBallCount(answer.split(""), computerNumber);
     if (inningResult.strikeCount == NUMBER_BASEBALL_DIGITS) {
-      bGameFinished = false;
+      bNextInning = false;
     }
 
     scoreBoard.showBallCount(inningResult);
   });
 
-  return bGameFinished;
+  return bNextInning;
 }
 
 // 야구 용어로, 스트라이크, 볼, 아웃을 통틀어 볼 카운트라고 부르더라구요.
