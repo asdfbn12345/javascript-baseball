@@ -1,112 +1,112 @@
 const scoreBoard = require("./scoreBoard");
-const readline = require("node:readline");
-const { stdin: input, stdout: output } = require("node:process");
-const rl = readline.createInterface({
-  input,
-  output,
-});
+const userInput = require("./user-input");
 
+const BASEBALL_NUMBERS = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 const NUMBER_BASEBALL_DIGITS = 3;
-const HIGHEST_DIGIT = 9;
-const LOWEST_DIGIT = 1;
+
+const MENU = {
+  START_GAME: "1",
+  EXIT_APPLICATION: "9"
+}
 
 async function start() {
-  let userInput = "";
-  let bStopGame = false;
 
-  while (!bStopGame) {
-    await askQuestion(
-      "게임을 새로 시작하려면 1, 종료하려면 9를 입력하세요. "
-    ).then((input) => {
-      userInput = input;
-    });
+  let isStopApplication = false;
 
-    switch (userInput) {
-      case "1":
+  while (!isStopApplication) {
+    const selectionResult = await userInput.selectMenu();
+
+    switch (selectionResult) {
+      case MENU.START_GAME:
         await playGame();
         break;
-      case "9":
+      case MENU.EXIT_APPLICATION:
         scoreBoard.showApplicationEnd();
-        bStopGame = true;
+        isStopApplication = true;
+        break;
+      default:
         break;
     }
   }
 }
 
-function askQuestion(query) {
-  return new Promise((resolve) => {
-    rl.question(query, (answer) => {
-      resolve(answer);
-    });
-  });
-}
+
 
 async function playGame() {
-  const computerNumber = getRandomNumberArray(NUMBER_BASEBALL_DIGITS);
-  scoreBoard.showGameSetting(computerNumber);
+  const computerNumbers = getRandomNumbers(NUMBER_BASEBALL_DIGITS);
+  scoreBoard.showGameSetting(computerNumbers);
 
-  let bNextInning = true;
+  let isPlayNextInning = true;
 
-  while (bNextInning) {
-    bNextInning = await playInning(computerNumber);
+  while (isPlayNextInning) {
+    isPlayNextInning = await playInning(computerNumbers);
   }
 
   scoreBoard.showGameEnd();
 }
 
-function getRandomNumberArray(digits) {
-  const numberArray = [];
-
-  while (numberArray.length != digits) {
-    let currentNumber = Math.floor(
-      Math.random() * HIGHEST_DIGIT + LOWEST_DIGIT
-    );
-    if (!numberArray.includes(currentNumber)) {
-      numberArray.push(currentNumber);
-    }
-  }
-
-  return numberArray;
+function getRandomNumbers(digits) {
+  const randomNumbers = shuffle([...BASEBALL_NUMBERS]);
+  
+  return randomNumbers.slice(0, digits);
 }
 
-// 야구 용어 참고 사이트: https://skinnonews.com/archives/28782
-// 변수명 등을 조금 더 "야구스럽게" 바꿔보았습니다.
-async function playInning(computerNumber) {
-  let bNextInning = true;
+async function playInning(computerNumbers) {
+  const userNumbers = await userInput.guessNumbers(NUMBER_BASEBALL_DIGITS);
 
-  await askQuestion("숫자를 입력하세요. ").then((answer) => {
-    let inningResult = checkBallCount(answer.split(""), computerNumber);
-    if (inningResult.strikeCount == NUMBER_BASEBALL_DIGITS) {
-      bNextInning = false;
-    }
+  const inningResult = checkBallCount(userNumbers, computerNumbers);
+  
+  const isPlayNextInning = inningResult.strikeCount !== NUMBER_BASEBALL_DIGITS;
+  
+  scoreBoard.showBallCount(inningResult);
 
-    scoreBoard.showBallCount(inningResult);
-  });
-
-  return bNextInning;
+  return isPlayNextInning;
 }
 
-// 야구 용어로, 스트라이크, 볼, 아웃을 통틀어 볼 카운트라고 부르더라구요.
-// 그래서, 아웃인지도 볼 카운트 함수에서 다루면 좋을 것 같습니다.
-function checkBallCount(userNumber, computerNumber) {
-  let strikeCount = 0;
-  let ballCount = 0;
-  let out = false;
+function checkBallCount(userNumbers, computerNumbers) {
+  let strikeCount = checkStrike(userNumbers, computerNumbers);
+  let ballCount = checkBall(userNumbers, computerNumbers);
+  let out = isOut(strikeCount, ballCount);
 
-  userNumber.filter((userNumber, userDigit) => {
-    computerNumber.filter((computerNumber, computerDigit) => {
-      if (userNumber == computerNumber) {
-        if (userDigit == computerDigit) {
-          ++strikeCount;
-        } else {
-          ++ballCount;
-        }
-      }
-    });
-  });
-
-  out = strikeCount == 0 && ballCount == 0;
   return { strikeCount, ballCount, out };
 }
+
+function checkStrike(userNumbers, computerNumbers) {
+  let strikeCount = 0;
+  userNumbers.filter((userNumber, userIndex) => {
+    computerNumbers.filter((computerNumber, computerIndex) => {
+      if (userNumber === computerNumber && userIndex === computerIndex) {
+        ++strikeCount;
+      }
+    })  
+  })
+  
+  return strikeCount;
+}
+
+function checkBall(userNumbers, computerNumbers) {
+  let ballCount = 0;
+  userNumbers.filter((userNumber, userIndex) => {
+    computerNumbers.filter((computerNumber, computerIndex) => {
+      if (userNumber === computerNumber && userIndex !== computerIndex) {
+        ++ballCount;
+      }
+    })  
+  })
+  return ballCount;
+}
+
+function isOut(strikeCount, ballCount) {
+  return strikeCount === 0 && ballCount ===0
+}
+
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const randomIndex = Math.floor(Math.random() * (i + 1));
+    [array[i], array[randomIndex]] = [array[randomIndex], array[i]];
+  }
+  return array;
+}
+
 
 exports.start = start;
