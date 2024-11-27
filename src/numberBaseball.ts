@@ -2,8 +2,8 @@ import * as scoreBoard from "./scoreBoard";
 import * as userInput from "./user-input";
 import { InningResult } from "./types/types";
 
-const BASEBALL_NUMBERS = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-const NUMBER_BASEBALL_DIGITS = 3;
+const BASEBALL_NUMBERS: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+const NUMBER_BASEBALL_DIGITS: number = 3;
 
 const MENU = {
   START_GAME: "1",
@@ -34,13 +34,21 @@ async function playGame() {
   const computerNumbers = getRandomNumbers(NUMBER_BASEBALL_DIGITS);
   scoreBoard.showGameSetting(computerNumbers);
 
-  let isPlayNextInning = true;
+  const inningsToWin: number = await userInput.setInningsToWin();
+  let currentInning = 0;
 
-  while (isPlayNextInning) {
-    isPlayNextInning = await playInning(computerNumbers);
+  let isUserWin = false;
+
+  while (!isUserWin) {
+    isUserWin = await playInning(computerNumbers);
+    ++currentInning;
+    if (currentInning === inningsToWin) {
+      isUserWin = false;
+    }
   }
 
-  scoreBoard.showGameEnd();
+  scoreBoard.showGameEnd(isUserWin);
+  scoreBoard.showRecordEnd();
 }
 
 function getRandomNumbers(digits: number) {
@@ -54,11 +62,11 @@ async function playInning(computerNumbers: number[]) {
 
   const inningResult = checkBallCount(userNumbers, computerNumbers);
 
-  const isPlayNextInning = inningResult.strikeCount !== NUMBER_BASEBALL_DIGITS;
+  const isUserWin = inningResult.strikeCount === NUMBER_BASEBALL_DIGITS;
 
   scoreBoard.showBallCount(inningResult);
 
-  return isPlayNextInning;
+  return isUserWin;
 }
 
 function checkBallCount(
