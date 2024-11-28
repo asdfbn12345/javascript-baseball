@@ -22,19 +22,21 @@ export function showBallCount(inningResult: InningResult): void {
 }
 
 export function showGameEnd(isUserWin: boolean): void {
-  console.log("3개의 숫자를 모두 맞히셨습니다.");
-  let winner = isUserWin
-    ? "사용자"
-    : "컴퓨터";
-  console.log(`${winner}가 승리하였습니다.`);
+  let winner;
+
+  if (isUserWin) {
+    console.log("3개의 숫자를 모두 맞히셨습니다.");
+    winner = "사용자";
+  } else {
+    winner = "컴퓨터";
+  } 
+  console.log(`${winner}가 승리하였습니다.`);  
   console.log("-------게임 종료-------");
-  
 }
 
 export function showRecordEnd(): void {
   console.log("-------기록 종료-------");
 }
-
 
 export function showApplicationEnd(): void {
   console.log("애플리케이션이 종료되었습니다.");

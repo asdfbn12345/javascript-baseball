@@ -1,14 +1,7 @@
 import * as scoreBoard from "./scoreBoard";
 import * as userInput from "./user-input";
 import { InningResult } from "./types/types";
-
-const BASEBALL_NUMBERS: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-const NUMBER_BASEBALL_DIGITS: number = 3;
-
-const MENU = {
-  START_GAME: "1",
-  EXIT_APPLICATION: "9",
-};
+import * as constants from "./types/constants";
 
 export async function start(): Promise<void> {
   let isStopApplication = false;
@@ -17,10 +10,10 @@ export async function start(): Promise<void> {
     const selectionResult = await userInput.selectMenu();
 
     switch (selectionResult) {
-      case MENU.START_GAME:
+      case constants.MENU.START_GAME:
         await playGame();
         break;
-      case MENU.EXIT_APPLICATION:
+      case constants.MENU.EXIT_APPLICATION:
         scoreBoard.showApplicationEnd();
         isStopApplication = true;
         break;
@@ -30,20 +23,18 @@ export async function start(): Promise<void> {
   }
 }
 
-async function playGame() {
-  const computerNumbers = getRandomNumbers(NUMBER_BASEBALL_DIGITS);
+async function playGame(): Promise<void> {
+  const computerNumbers = getRandomNumbers(constants.NUMBER_BASEBALL_DIGITS);
   scoreBoard.showGameSetting(computerNumbers);
 
   const inningsToWin: number = await userInput.setInningsToWin();
-  let currentInning = 0;
 
   let isUserWin = false;
 
-  while (!isUserWin) {
+  for (let i=0; i < inningsToWin; i++) {
     isUserWin = await playInning(computerNumbers);
-    ++currentInning;
-    if (currentInning === inningsToWin) {
-      isUserWin = false;
+    if (isUserWin) {
+      break;
     }
   }
 
@@ -51,18 +42,18 @@ async function playGame() {
   scoreBoard.showRecordEnd();
 }
 
-function getRandomNumbers(digits: number) {
-  const randomNumbers = shuffle([...BASEBALL_NUMBERS]);
+function getRandomNumbers(digits: number): number[] {
+  const randomNumbers = shuffle([...constants.BASEBALL_NUMBERS]);
 
   return randomNumbers.slice(0, digits);
 }
 
-async function playInning(computerNumbers: number[]) {
-  const userNumbers = await userInput.guessNumbers(NUMBER_BASEBALL_DIGITS);
+async function playInning(computerNumbers: number[]): Promise<boolean> {
+  const userNumbers = await userInput.guessNumbers(constants.NUMBER_BASEBALL_DIGITS);
 
   const inningResult = checkBallCount(userNumbers, computerNumbers);
 
-  const isUserWin = inningResult.strikeCount === NUMBER_BASEBALL_DIGITS;
+  const isUserWin = inningResult.strikeCount === constants.NUMBER_BASEBALL_DIGITS;
 
   scoreBoard.showBallCount(inningResult);
 
@@ -80,7 +71,7 @@ function checkBallCount(
   return { strikeCount, ballCount, out };
 }
 
-function checkStrike(userNumbers: number[], computerNumbers: number[]) {
+function checkStrike(userNumbers: number[], computerNumbers: number[]): number {
   let strikeCount = 0;
   userNumbers.filter((userNumber, userIndex) => {
     computerNumbers.filter((computerNumber, computerIndex) => {
@@ -93,7 +84,7 @@ function checkStrike(userNumbers: number[], computerNumbers: number[]) {
   return strikeCount;
 }
 
-function checkBall(userNumbers: number[], computerNumbers: number[]) {
+function checkBall(userNumbers: number[], computerNumbers: number[]): number {
   let ballCount = 0;
   userNumbers.filter((userNumber, userIndex) => {
     computerNumbers.filter((computerNumber, computerIndex) => {
@@ -105,11 +96,11 @@ function checkBall(userNumbers: number[], computerNumbers: number[]) {
   return ballCount;
 }
 
-function isOut(strikeCount: number, ballCount: number) {
+function isOut(strikeCount: number, ballCount: number): boolean {
   return strikeCount === 0 && ballCount === 0;
 }
 
-function shuffle(array: number[]) {
+function shuffle(array: number[]): number[] {
   for (let i = array.length - 1; i > 0; i--) {
     const randomIndex = Math.floor(Math.random() * (i + 1));
     [array[i], array[randomIndex]] = [array[randomIndex], array[i]];
