@@ -16,16 +16,20 @@ function askQuestion(query: string): Promise<string> {
 }
 
 export async function selectMenu(): Promise<string> {
-  const regex = new RegExp(`^[${Object.values(MENU)}]$`);
+  const isValidMenu = (input: string): boolean =>
+    Object.values(MENU).includes(input);
   let menu;
 
   while (!menu) {
     try {
       const input = await askQuestion(
-        "게임을 새로 시작하려면 1, 종료하려면 9를 입력하세요. "
+        `게임을 새로 시작하려면 ${MENU.START_GAME}, ` +
+          `기록을 보려면 ${MENU.GAME_HISTORY}, ` +
+          `통계를 보려면 ${MENU.GAME_STATISTICS}, ` +
+          `종료하려면 ${MENU.EXIT_APPLICATION}를 입력하세요. `
       );
 
-      if (!regex.test(input)) {        
+      if (!isValidMenu(input)) {
         console.log(`올바른 메뉴를 입력하세요.`);
         continue;
       }
@@ -44,14 +48,13 @@ export async function guessNumbers(length: number): Promise<number[]> {
 
   while (!numbers) {
     try {
-      
       const input = await askQuestion("숫자를 입력하세요. ");
 
-      if (!regex.test(input)) {        
+      if (!regex.test(input)) {
         console.log(`입력값은 ${length}자리 숫자여야 합니다.`);
         continue;
       }
-      
+
       numbers = input.split("").map(Number);
       break;
     } catch (error) {
@@ -63,15 +66,17 @@ export async function guessNumbers(length: number): Promise<number[]> {
 }
 
 export async function setInningsToWin(): Promise<number> {
-  const regex = new RegExp(`^\\d+$`);
   let number;
 
   while (!number) {
     try {
-      const input: string = await askQuestion("컴퓨터에게 승리하기 위해 몇번만에 성공해야 하나요? ");
+      const input: string = await askQuestion(
+        "컴퓨터에게 승리하기 위해 몇번만에 성공해야 하나요? "
+      );
 
-      if (!regex.test(input)) {
-        console.log(`입력값은 숫자여야 합니다.`);
+      const parsedNumber = Number(input);
+      if (isNaN(parsedNumber) || parsedNumber < 1) {
+        console.log(`입력값은 1이상의 숫자여야 합니다.`);
         continue;
       }
 

@@ -2,6 +2,8 @@ import * as scoreBoard from "./scoreBoard";
 import * as userInput from "./user-input";
 import { InningResult } from "./types/types";
 import * as constants from "./types/constants";
+import * as gameRecorder from "./gameRecorder";
+// import * as gameStatistics from "./gameStatistics";
 
 export async function start(): Promise<void> {
   let isStopApplication = false;
@@ -12,6 +14,11 @@ export async function start(): Promise<void> {
     switch (selectionResult) {
       case constants.MENU.START_GAME:
         await playGame();
+        break;
+      case constants.MENU.GAME_HISTORY:
+        gameRecorder.showHistory();
+        break;
+      case constants.MENU.GAME_STATISTICS:
         break;
       case constants.MENU.EXIT_APPLICATION:
         scoreBoard.showApplicationEnd();
@@ -25,21 +32,25 @@ export async function start(): Promise<void> {
 
 async function playGame(): Promise<void> {
   const computerNumbers = getRandomNumbers(constants.NUMBER_BASEBALL_DIGITS);
-  scoreBoard.showGameSetting(computerNumbers);
-
   const inningsToWin: number = await userInput.setInningsToWin();
 
+  scoreBoard.showGameSetting(computerNumbers);
+  gameRecorder.startRecord(inningsToWin);
   let isUserWin = false;
+  let lastInning: number = inningsToWin;
 
-  for (let i=0; i < inningsToWin; i++) {
+  for (let currentInning = 1; currentInning <= inningsToWin; ++currentInning) {
     isUserWin = await playInning(computerNumbers);
     if (isUserWin) {
+      lastInning = currentInning;
       break;
     }
   }
 
   scoreBoard.showGameEnd(isUserWin);
   scoreBoard.showRecordEnd();
+
+  gameRecorder.endRecord(isUserWin, lastInning);
 }
 
 function getRandomNumbers(digits: number): number[] {
@@ -49,11 +60,14 @@ function getRandomNumbers(digits: number): number[] {
 }
 
 async function playInning(computerNumbers: number[]): Promise<boolean> {
-  const userNumbers = await userInput.guessNumbers(constants.NUMBER_BASEBALL_DIGITS);
+  const userNumbers = await userInput.guessNumbers(
+    constants.NUMBER_BASEBALL_DIGITS
+  );
 
   const inningResult = checkBallCount(userNumbers, computerNumbers);
 
-  const isUserWin = inningResult.strikeCount === constants.NUMBER_BASEBALL_DIGITS;
+  const isUserWin =
+    inningResult.strikeCount === constants.NUMBER_BASEBALL_DIGITS;
 
   scoreBoard.showBallCount(inningResult);
 
