@@ -3,7 +3,7 @@ import * as userInput from "./user-input";
 import { InningResult } from "./types/types";
 import * as constants from "./types/constants";
 import * as gameRecorder from "./gameRecorder";
-// import * as gameStatistics from "./gameStatistics";
+import * as gameStatistics from "./gameStatistics";
 
 export async function start(): Promise<void> {
   let isStopApplication = false;
@@ -19,6 +19,7 @@ export async function start(): Promise<void> {
         gameRecorder.showHistory();
         break;
       case constants.MENU.GAME_STATISTICS:
+        gameStatistics.showStatistics();
         break;
       case constants.MENU.EXIT_APPLICATION:
         scoreBoard.showApplicationEnd();

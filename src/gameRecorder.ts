@@ -1,6 +1,6 @@
 import { GameRecord } from "./types/types";
 
-const gameRecords: GameRecord[] = [];
+export const gameRecords: GameRecord[] = [];
 // TODO: 아무런 의미도 없다고 전달하고싶음
 const gameRecord: GameRecord = {
   id: 0,
