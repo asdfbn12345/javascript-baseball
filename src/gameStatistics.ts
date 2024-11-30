@@ -1,19 +1,24 @@
 import { gameRecords } from "./gameRecorder";
+import { UserType } from "./types/enums";
 
 export function showStatistics(): void {
   console.log("==================Statistics==================");
   if (gameRecords.length === 0) {
     console.log("통계를 출력할 데이터가 없습니다.");
   } else {
-    showLeastInning();
-    showMostInning();
-    showMostInningsToWin();
-    showMaxInningsToWin();
-    showMinInningsToWin();
-    showAverageInning();
-    showComputerMostInningsToWin();
-    showUserMostInningsToWin();
-    showPepe();
+    try {
+      showLeastInning();
+      showMostInning();
+      showMostInningsToWin();
+      showMaxInningsToWin();
+      showMinInningsToWin();
+      showAverageInning();
+      showComputerMostInningsToWin();
+      showUserMostInningsToWin();
+      showPepe();
+    } catch (error) {
+      console.log("통계 생성 중 오류가 발생했습니다:", error);
+    }
   }
   console.log("==============================================");
 }
@@ -48,15 +53,16 @@ function showMostInningsToWin(): void {
   const frequencyMap: Map<number, number[]> = new Map();
 
   gameRecords.forEach((gameRecord) => {
-    const a = frequencyMap.get(gameRecord.inningsToWin);
-    if (a === undefined) {
+    const frequencyArray = frequencyMap.get(gameRecord.inningsToWin);
+    if (frequencyArray === undefined) {
       frequencyMap.set(gameRecord.inningsToWin, [gameRecord.id]);
     }
-    a?.push(gameRecord.id);
+    frequencyArray?.push(gameRecord.id);
   });
 
   let mostInningsToWin: number = 1;
   let mostFrequency: number = -Infinity;
+
   frequencyMap.forEach((ids, inningsToWin) => {
     mostFrequency = Math.max(mostFrequency, ids.length);
     if (mostFrequency === ids.length) {
@@ -126,20 +132,21 @@ function showComputerMostInningsToWin(): void {
   const frequencyMap: Map<number, number[]> = new Map();
 
   gameRecords.forEach((gameRecord) => {
-    if (gameRecord.winner === "사용자") {
+    if (gameRecord.winner === UserType.User) {
       return
     }
     
-    const a = frequencyMap.get(gameRecord.inningsToWin);
+    const frequencyArray = frequencyMap.get(gameRecord.inningsToWin);
 
-    if (a === undefined) {
+    if (frequencyArray === undefined) {
       frequencyMap.set(gameRecord.inningsToWin, [gameRecord.id]);
     }
-    a?.push(gameRecord.id);
+    frequencyArray?.push(gameRecord.id);
   });
 
   let computerMostInningsToWin: number = 0;
   let mostFrequency: number = -Infinity;
+
   frequencyMap.forEach((ids, inningsToWin) => {
     mostFrequency = Math.max(mostFrequency, ids.length);
     if (mostFrequency === ids.length) {
@@ -157,20 +164,21 @@ function showUserMostInningsToWin(): void {
   const frequencyMap: Map<number, number[]> = new Map();
 
   gameRecords.forEach((gameRecord) => {
-    if (gameRecord.winner === "컴퓨터") {
+    if (gameRecord.winner === UserType.Computer) {
       return
     }
     
-    const a = frequencyMap.get(gameRecord.inningsToWin);
+    const frequencyArray = frequencyMap.get(gameRecord.inningsToWin);
 
-    if (a === undefined) {
+    if (frequencyArray === undefined) {
       frequencyMap.set(gameRecord.inningsToWin, [gameRecord.id]);
     }
-    a?.push(gameRecord.id);
+    frequencyArray?.push(gameRecord.id);
   });
 
   let userMostInningsToWin: number = 0;
   let mostFrequency: number = -Infinity;
+
   frequencyMap.forEach((ids, inningsToWin) => {
     mostFrequency = Math.max(mostFrequency, ids.length);
     if (mostFrequency === ids.length) {

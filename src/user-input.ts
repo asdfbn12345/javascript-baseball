@@ -1,6 +1,6 @@
 import * as readline from "readline";
 import { stdin as input, stdout as output } from "process";
-import { MENU } from "./types/constants";
+import { Menu } from "./types/enums";
 
 const rl = readline.createInterface({
   input,
@@ -15,25 +15,24 @@ function askQuestion(query: string): Promise<string> {
   });
 }
 
-export async function selectMenu(): Promise<string> {
-  const isValidMenu = (input: string): boolean =>
-    Object.values(MENU).includes(input);
-  let menu;
+export async function selectMenu(): Promise<Menu> {
+  let menu: Menu;
 
-  while (!menu) {
+  while (true) {
     try {
       const input = await askQuestion(
-        `게임을 새로 시작하려면 ${MENU.START_GAME}, ` +
-          `기록을 보려면 ${MENU.GAME_HISTORY}, ` +
-          `통계를 보려면 ${MENU.GAME_STATISTICS}, ` +
-          `종료하려면 ${MENU.EXIT_APPLICATION}를 입력하세요. `
+        `게임을 새로 시작하려면 ${Menu.StartGame}, ` +
+          `기록을 보려면 ${Menu.GameHistory}, ` +
+          `통계를 보려면 ${Menu.GameStatistics}, ` +
+          `종료하려면 ${Menu.ExitApplication}를 입력하세요. `
       );
 
-      if (!isValidMenu(input)) {
-        console.log(`올바른 메뉴를 입력하세요.`);
-        continue;
+      if (Object.values(Menu).includes(input as Menu)) {
+        menu = input as Menu;
+        break;        
       }
-      menu = input;
+      
+      console.log(`올바른 메뉴를 입력하세요.`);      
     } catch (error) {
       console.log("입력을 처리하는 중 문제가 발생했습니다.", error);
     }

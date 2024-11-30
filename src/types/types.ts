@@ -1,3 +1,5 @@
+import { UserType } from "./enums";
+
 export type InningResult = {
   strikeCount: number;
   ballCount: number;
@@ -10,5 +12,5 @@ export type GameRecord = {
   endTime: string;
   inningsToWin: number;
   lastInning: number;
-  winner: "사용자" | "컴퓨터";
+  winner: UserType;
 };

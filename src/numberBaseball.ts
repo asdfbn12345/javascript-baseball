@@ -1,7 +1,8 @@
 import * as scoreBoard from "./scoreBoard";
 import * as userInput from "./user-input";
+import { Menu } from "./types/enums"
 import { InningResult } from "./types/types";
-import * as constants from "./types/constants";
+import { BASEBALL_NUMBERS, NUMBER_BASEBALL_DIGITS } from "./types/constants";
 import * as gameRecorder from "./gameRecorder";
 import * as gameStatistics from "./gameStatistics";
 
@@ -9,19 +10,19 @@ export async function start(): Promise<void> {
   let isStopApplication = false;
 
   while (!isStopApplication) {
-    const selectionResult = await userInput.selectMenu();
+    const selectionResult: Menu = await userInput.selectMenu();
 
     switch (selectionResult) {
-      case constants.MENU.START_GAME:
+      case Menu.StartGame:
         await playGame();
         break;
-      case constants.MENU.GAME_HISTORY:
+      case Menu.GameHistory:
         gameRecorder.showHistory();
         break;
-      case constants.MENU.GAME_STATISTICS:
+      case Menu.GameStatistics:
         gameStatistics.showStatistics();
         break;
-      case constants.MENU.EXIT_APPLICATION:
+      case Menu.ExitApplication:
         scoreBoard.showApplicationEnd();
         isStopApplication = true;
         break;
@@ -32,11 +33,11 @@ export async function start(): Promise<void> {
 }
 
 async function playGame(): Promise<void> {
-  const computerNumbers = getRandomNumbers(constants.NUMBER_BASEBALL_DIGITS);
+  const computerNumbers = getRandomNumbers(NUMBER_BASEBALL_DIGITS);
   const inningsToWin: number = await userInput.setInningsToWin();
 
   scoreBoard.showGameSetting(computerNumbers);
-  gameRecorder.startRecord(inningsToWin);
+  const recordStartTime = gameRecorder.startRecord();
   let isUserWin = false;
   let lastInning: number = inningsToWin;
 
@@ -51,24 +52,24 @@ async function playGame(): Promise<void> {
   scoreBoard.showGameEnd(isUserWin);
   scoreBoard.showRecordEnd();
 
-  gameRecorder.endRecord(isUserWin, lastInning);
+  gameRecorder.endRecord(isUserWin, recordStartTime, inningsToWin, lastInning);
 }
 
 function getRandomNumbers(digits: number): number[] {
-  const randomNumbers = shuffle([...constants.BASEBALL_NUMBERS]);
+  const randomNumbers = shuffle([...BASEBALL_NUMBERS]);
 
   return randomNumbers.slice(0, digits);
 }
 
 async function playInning(computerNumbers: number[]): Promise<boolean> {
   const userNumbers = await userInput.guessNumbers(
-    constants.NUMBER_BASEBALL_DIGITS
+    NUMBER_BASEBALL_DIGITS
   );
 
   const inningResult = checkBallCount(userNumbers, computerNumbers);
 
   const isUserWin =
-    inningResult.strikeCount === constants.NUMBER_BASEBALL_DIGITS;
+    inningResult.strikeCount === NUMBER_BASEBALL_DIGITS;
 
   scoreBoard.showBallCount(inningResult);
 

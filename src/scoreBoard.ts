@@ -1,3 +1,4 @@
+import { UserType } from "./types/enums";
 import { InningResult } from "./types/types";
 
 export function showGameSetting(computerNumbers: number[]): void {
@@ -26,9 +27,9 @@ export function showGameEnd(isUserWin: boolean): void {
 
   if (isUserWin) {
     console.log("3개의 숫자를 모두 맞히셨습니다.");
-    winner = "사용자";
+    winner = UserType.User;
   } else {
-    winner = "컴퓨터";
+    winner = UserType.Computer;
   } 
   console.log(`${winner}가 승리하였습니다.`);  
   console.log("-------게임 종료-------");
