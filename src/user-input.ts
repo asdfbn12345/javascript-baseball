@@ -55,6 +55,12 @@ export async function guessNumbers(length: number): Promise<number[]> {
         continue;
       }
 
+      const isDuplicated = (new Set(input)).size !== length;
+      if (isDuplicated) {
+        console.log(`입력값은 중복되지 않아야 합니다.`);
+        continue;
+      }
+
       numbers = input.split("").map(Number);
       break;
     } catch (error) {
