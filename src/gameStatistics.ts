@@ -117,21 +117,70 @@ function showAverageInning(): void {
     return (sum += gameRecord.inningsToWin);
   }, 0);
 
-  const averageInningsToWin = sumOfInningsToWin / gameRecords.length;
+  const averageInningsToWin = (sumOfInningsToWin / gameRecords.length).toFixed(2);
 
   console.log(`적용된 승리/패패 횟수 평균: ${averageInningsToWin}회`);
 }
 
 function showComputerMostInningsToWin(): void {
-  // console.log(
-  //   `컴퓨터가 가장 많이 승리한 승리/패패 횟수: ${computerMostInningsToWin}회`
-  // );
+  const frequencyMap: Map<number, number[]> = new Map();
+
+  gameRecords.forEach((gameRecord) => {
+    if (gameRecord.winner === "사용자") {
+      return
+    }
+    
+    const a = frequencyMap.get(gameRecord.inningsToWin);
+
+    if (a === undefined) {
+      frequencyMap.set(gameRecord.inningsToWin, [gameRecord.id]);
+    }
+    a?.push(gameRecord.id);
+  });
+
+  let computerMostInningsToWin: number = 0;
+  let mostFrequency: number = -Infinity;
+  frequencyMap.forEach((ids, inningsToWin) => {
+    mostFrequency = Math.max(mostFrequency, ids.length);
+    if (mostFrequency === ids.length) {
+      computerMostInningsToWin = inningsToWin;
+    }
+  });
+    
+  
+  console.log(
+    `컴퓨터가 가장 많이 승리한 승리/패패 횟수: ${computerMostInningsToWin}회`
+  );
 }
 
 function showUserMostInningsToWin(): void {
-  // console.log(
-  //   `사용자가 가장 많이 승리한 승리/패패 횟수: ${userMostInningsToWin}회`
-  // );
+  const frequencyMap: Map<number, number[]> = new Map();
+
+  gameRecords.forEach((gameRecord) => {
+    if (gameRecord.winner === "컴퓨터") {
+      return
+    }
+    
+    const a = frequencyMap.get(gameRecord.inningsToWin);
+
+    if (a === undefined) {
+      frequencyMap.set(gameRecord.inningsToWin, [gameRecord.id]);
+    }
+    a?.push(gameRecord.id);
+  });
+
+  let userMostInningsToWin: number = 0;
+  let mostFrequency: number = -Infinity;
+  frequencyMap.forEach((ids, inningsToWin) => {
+    mostFrequency = Math.max(mostFrequency, ids.length);
+    if (mostFrequency === ids.length) {
+      userMostInningsToWin = inningsToWin;
+    }
+  });
+
+  console.log(
+    `사용자가 가장 많이 승리한 승리/패패 횟수: ${userMostInningsToWin}회`
+  );
 }
 
 function showPepe() {
