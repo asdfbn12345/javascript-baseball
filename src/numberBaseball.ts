@@ -1,7 +1,7 @@
 import * as scoreBoard from "./scoreBoard";
 import * as userInput from "./user-input";
-import { Menu } from "./types/enums"
-import { InningResult } from "./types/types";
+import { Menu } from "./types/enums";
+import { InningResult } from "./types/interfaces";
 import { BASEBALL_NUMBERS, NUMBER_BASEBALL_DIGITS } from "./types/constants";
 import * as gameRecorder from "./gameRecorder";
 import * as gameStatistics from "./gameStatistics";
@@ -50,9 +50,9 @@ async function playGame(): Promise<void> {
   }
 
   scoreBoard.showGameEnd(isUserWin);
-  scoreBoard.showRecordEnd();
 
   gameRecorder.endRecord(isUserWin, recordStartTime, inningsToWin, lastInning);
+  scoreBoard.showRecordEnd();
 }
 
 function getRandomNumbers(digits: number): number[] {
@@ -62,14 +62,9 @@ function getRandomNumbers(digits: number): number[] {
 }
 
 async function playInning(computerNumbers: number[]): Promise<boolean> {
-  const userNumbers = await userInput.guessNumbers(
-    NUMBER_BASEBALL_DIGITS
-  );
-
+  const userNumbers = await userInput.guessNumbers(NUMBER_BASEBALL_DIGITS);
   const inningResult = checkBallCount(userNumbers, computerNumbers);
-
-  const isUserWin =
-    inningResult.strikeCount === NUMBER_BASEBALL_DIGITS;
+  const isUserWin = inningResult.strikeCount === NUMBER_BASEBALL_DIGITS;
 
   scoreBoard.showBallCount(inningResult);
 

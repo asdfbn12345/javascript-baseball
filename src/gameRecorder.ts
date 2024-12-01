@@ -1,7 +1,10 @@
-import { GameRecord } from "./types/types";
-import { UserType } from "./types/enums"
+import { GameRecord } from "./types/interfaces";
+import { UserType } from "./types/enums";
 
-export const gameRecords: GameRecord[] = [];
+export function getGameRecords(): readonly GameRecord[] {
+  return gameRecords;
+}
+const gameRecords: GameRecord[] = [];
 
 export function showHistory(): void {
   console.log("===================History===================");
@@ -22,9 +25,14 @@ export function startRecord(): number {
   return Date.now();
 }
 
-export function endRecord(isUserWin: boolean, startTime: number, inningsToWin: number, lastInning: number): void {
+export function endRecord(
+  isUserWin: boolean,
+  startTime: number,
+  inningsToWin: number,
+  lastInning: number
+): void {
   const gameRecord: GameRecord = {
-    id: gameRecords.length + 1,
+    id: getGameRecords.length + 1,
     startTime: getFormattedTime(startTime),
     endTime: getFormattedTime(Date.now()),
     inningsToWin: inningsToWin,

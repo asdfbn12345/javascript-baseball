@@ -1,5 +1,5 @@
 import { UserType } from "./types/enums";
-import { InningResult } from "./types/types";
+import { InningResult } from "./types/interfaces";
 
 export function showGameSetting(computerNumbers: number[]): void {
   console.log("컴퓨터가 숫자를 뽑았습니다.");
@@ -30,8 +30,8 @@ export function showGameEnd(isUserWin: boolean): void {
     winner = UserType.User;
   } else {
     winner = UserType.Computer;
-  } 
-  console.log(`${winner}가 승리하였습니다.`);  
+  }
+  console.log(`${winner}가 승리하였습니다.`);
   console.log("-------게임 종료-------");
 }
 
