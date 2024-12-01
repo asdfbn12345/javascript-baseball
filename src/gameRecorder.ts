@@ -20,21 +20,21 @@ export function showHistory(): void {
   console.log("=============================================");
 }
 
-/** Returns Date.now() */
-export function startRecord(): number {
-  return Date.now();
+/** Returns current date*/
+export function startRecord(): Date {
+  return new Date();
 }
 
 export function endRecord(
   isUserWin: boolean,
-  startTime: number,
+  startTime: Date,
   inningsToWin: number,
   lastInning: number
 ): void {
   const gameRecord: GameRecord = {
     id: getGameRecords.length + 1,
     startTime: getFormattedTime(startTime),
-    endTime: getFormattedTime(Date.now()),
+    endTime: getFormattedTime(new Date()),
     inningsToWin: inningsToWin,
     lastInning: lastInning,
     winner: isUserWin ? UserType.User : UserType.Computer,
@@ -42,7 +42,7 @@ export function endRecord(
   gameRecords.push(gameRecord);
 }
 
-function getFormattedTime(date: number): string {
+function getFormattedTime(date: Date): string {
   const options: Intl.DateTimeFormatOptions = {
     year: "numeric",
     month: "2-digit",
