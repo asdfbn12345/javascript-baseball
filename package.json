@@ -5,7 +5,8 @@
   "scripts": {
     "start": "npm run lite",
     "test": "jest",
-    "lite": "lite-server"
+    "lite": "lite-server",
+    "debug": "npx tsc && node dist/index.js"
   },
   "keywords": [],
   "author": "",
