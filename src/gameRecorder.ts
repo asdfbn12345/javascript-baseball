@@ -1,61 +1,86 @@
 import { GameRecord } from "./types/interfaces";
 import { UserType } from "./types/enums";
+import { MESSAGES_BAR, RECORD_MESSAGES } from "./types/constants";
 
-export function getGameRecords(): readonly GameRecord[] {
-  return gameRecords;
+export class GameRecorder {
+  private static instance: GameRecorder;
+  private gameRecords: GameRecord[] = [];
+  private currentGameRecord: GameRecord | null = null;
+
+  private constructor() {}
+
+  public static getInstance(): GameRecorder {
+    if (!GameRecorder.instance) {
+      GameRecorder.instance = new GameRecorder();
+    }
+    return GameRecorder.instance;
+  }
+
+  public getGameRecords(): readonly Readonly<GameRecord>[] {
+    if (this.gameRecords.length === 0) {
+      return [];
+    }
+    return this.gameRecords as readonly Readonly<GameRecord>[];
+  }
+
+  public getGameRecordsLength(): number {
+    return this.gameRecords.length;
+  }
+
+  public getCurrentGameRecord(): Readonly<GameRecord> | null {
+    return this.currentGameRecord;
+  }
+
+  public showHistory(): void {
+    console.log(MESSAGES_BAR.HISTORY_BAR);
+    this.gameRecords.forEach((gameRecord) => {
+      console.log(
+        `[${gameRecord.id}] / ` +
+          `시작시간: ${convertTime(gameRecord.startTime)} / ` +
+          `종료시간: ${convertTime(gameRecord.endTime)} / ` +
+          `횟수: ${gameRecord.lastInning} / ` +
+          `승리자: ${gameRecord.winner}`
+      );
+    });
+    console.log(MESSAGES_BAR.BAR);
+  }
+
+  public startNewRecord(inningsToWin: number): void {
+    this.currentGameRecord = {
+      id: this.gameRecords.length + 1,
+      startTime: new Date(),
+      endTime: null,
+      inningsToWin,
+      lastInning: 0,
+      winner: null,
+    };
+  }
+
+  public endRecord(isUserWin: boolean, lastInning: number): void {
+    if (!this.currentGameRecord) {
+      throw new Error(RECORD_MESSAGES.NOT_STARTED_ERROR);
+    }
+    if (lastInning < 1 || lastInning > this.currentGameRecord.inningsToWin) {
+      throw new Error(RECORD_MESSAGES.INVALID_INNINGS_ERROR);
+    }
+
+    const updatedRecord: GameRecord = {
+      ...this.currentGameRecord,
+      endTime: new Date(),
+      lastInning: lastInning,
+      winner: isUserWin ? UserType.User : UserType.Computer
+    };
+
+    this.gameRecords.push(updatedRecord);
+    this.currentGameRecord = null;
+  }
 }
-const gameRecords: GameRecord[] = [];
 
-export function showHistory(): void {
-  console.log("===================History===================");
-  gameRecords.forEach((gameRecord) => {
-    console.log(
-      `[${gameRecord.id}] / ` +
-        `시작시간: ${gameRecord.startTime} / ` +
-        `종료시간: ${gameRecord.endTime} / ` +
-        `횟수: ${gameRecord.lastInning} / ` +
-        `승리자: ${gameRecord.winner}`
-    );
-  });
-  console.log("=============================================");
-}
-
-/** Returns current date*/
-export function startRecord(): Date {
-  return new Date();
-}
-
-export function endRecord(
-  isUserWin: boolean,
-  startTime: Date,
-  inningsToWin: number,
-  lastInning: number
-): void {
-  const gameRecord: GameRecord = {
-    id: getGameRecords.length + 1,
-    startTime: getFormattedTime(startTime),
-    endTime: getFormattedTime(new Date()),
-    inningsToWin: inningsToWin,
-    lastInning: lastInning,
-    winner: isUserWin ? UserType.User : UserType.Computer,
-  };
-  gameRecords.push(gameRecord);
-}
-
-function getFormattedTime(date: Date): string {
-  const options: Intl.DateTimeFormatOptions = {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  };
-  let formattedDate = date.toLocaleString("ko-KR", options);
-  const dateDotIndex = formattedDate.lastIndexOf(".");
-  formattedDate =
-    formattedDate.slice(0, dateDotIndex) +
-    formattedDate.slice(dateDotIndex + 1);
-
-  return formattedDate;
+function convertTime(time: Date | null): string {
+  if (!time) return "";
+  const minutes = ('0' + time.getMinutes()).slice(-2);
+  const month = ('0' + (time.getMonth() + 1)).slice(-2);
+  const date = ('0' + time.getDate()).slice(-2);
+  const hours = ('0' + time.getHours()).slice(-2);
+  return `${time.getFullYear()}. ${month}. ${date} ${hours}:${minutes}`;
 }

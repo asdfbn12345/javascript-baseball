@@ -1,7 +1,7 @@
 import * as readline from "readline";
 import { stdin as input, stdout as output } from "process";
-import { Menu } from "./types/enums";
-
+import { BaseballNumbers, MenuType } from "./types/types";
+import { Menu } from "./types/constants";
 const rl = readline.createInterface({
   input,
   output,
@@ -15,82 +15,80 @@ function askQuestion(query: string): Promise<string> {
   });
 }
 
-export async function selectMenu(): Promise<Menu> {
-  let menu: Menu;
+export async function selectMenu(): Promise<MenuType> {
+  let menu: MenuType;
 
   while (true) {
-    try {
-      const input = await askQuestion(
-        `게임을 새로 시작하려면 ${Menu.StartGame}, ` +
-          `기록을 보려면 ${Menu.GameHistory}, ` +
-          `통계를 보려면 ${Menu.GameStatistics}, ` +
-          `종료하려면 ${Menu.ExitApplication}를 입력하세요. `
-      );
+    const input = await askQuestion(
+      `게임을 새로 시작하려면 ${Menu.StartGame}, ` +
+      `기록을 보려면 ${Menu.GameHistory}, ` +
+      `통계를 보려면 ${Menu.GameStatistics}, ` +
+      `종료하려면 ${Menu.ExitApplication}를 입력하세요. `
+    );
 
-      if (Object.values(Menu).includes(input as Menu)) {
-        menu = input as Menu;
-        break;        
-      }
-      
-      console.log(`올바른 메뉴를 입력하세요.`);      
-    } catch (error) {
-      console.log("입력을 처리하는 중 문제가 발생했습니다.", error);
+    if (Object.values(Menu).includes(input as MenuType)) {
+      menu = input as MenuType;
+      break;        
     }
+    
+    console.log(`올바른 메뉴를 입력하세요.`);      
   }
 
   return menu;
 }
 
-export async function guessNumbers(length: number): Promise<number[]> {
-  const regex = new RegExp(`^\\d{${length}}$`);
-  let numbers: number[] | null = null;
+export async function guessNumbers(length: number): Promise<BaseballNumbers> {
+  while (true) {
+    const input = await askQuestion("숫자를 입력하세요: ");
 
-  while (!numbers) {
-    try {
-      const input = await askQuestion("숫자를 입력하세요. ");
-
-      if (!regex.test(input)) {
-        console.log(`입력값은 ${length}자리 숫자여야 합니다.`);
-        continue;
-      }
-
-      const isDuplicated = (new Set(input)).size !== length;
-      if (isDuplicated) {
-        console.log(`입력값은 중복되지 않아야 합니다.`);
-        continue;
-      }
-
-      numbers = input.split("").map(Number);
-      break;
-    } catch (error) {
-      console.log("입력을 처리하는 중 문제가 발생했습니다.", error);
+    if (!isNumeric(input)) {
+      console.log("모든 글자는 숫자로만 이루어져야 합니다.");
+      continue;
     }
+    if (!isCorrectLength(input, length)) {
+      console.log(`입력값은 ${length}자리 숫자여야 합니다.`);
+      continue;
+    }
+    if (!hasNoDuplicates(input, length)) {
+      console.log("입력값은 중복되지 않아야 합니다.");
+      continue;
+    }
+    
+    const numbers = input.split("").map(Number);
+    return numbers as BaseballNumbers;
   }
-
-  return numbers;
 }
 
 export async function setInningsToWin(): Promise<number> {
-  let number;
+  let targetInnings: number | null = null;
 
-  while (!number) {
-    try {
-      const input: string = await askQuestion(
-        "컴퓨터에게 승리하기 위해 몇번만에 성공해야 하나요? "
-      );
+  while (targetInnings === null) {
+    const input: string = await askQuestion(
+      "컴퓨터에게 승리하기 위해 몇번만에 성공해야 하나요? "
+    );
 
-      const parsedNumber = Number(input);
-      if (isNaN(parsedNumber) || parsedNumber < 1) {
-        console.log(`입력값은 1이상의 숫자여야 합니다.`);
-        continue;
-      }
+    const parsedNumber = Number(input);
+    if (!isOneOrOver(parsedNumber)) continue;
 
-      number = Number(input);
-    } catch (error) {
-      console.log("입력을 처리하는 중 문제가 발생했습니다.", error);
-    }
+    targetInnings = parsedNumber;
   }
-  console.log(`승리 횟수는 ${number}회로 지정되었습니다.`);
+  console.log(`이닝수는 ${targetInnings}회로 지정되었습니다.`);
 
-  return number;
+  return targetInnings;
+}
+
+function isCorrectLength(input: string, length: number): boolean {
+  return input.length === length;
+}
+
+function hasNoDuplicates(input: string, length: number): boolean {
+  return new Set(input).size === length;
+}
+
+function isNumeric(numbers: string): boolean {
+  return /^\d+$/.test(numbers);
+}
+
+function isOneOrOver(number: number): boolean {
+  return number >= 1;
 }

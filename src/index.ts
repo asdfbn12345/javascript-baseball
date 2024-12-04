@@ -1,3 +1,8 @@
-import * as numberBaseball from "./numberBaseball";
+import { NumberBaseballGame } from "./numberBaseball";
 
-numberBaseball.start();
+async function main() {
+  const game = new NumberBaseballGame();
+  await game.start();
+}
+
+main();

@@ -1,115 +1,114 @@
 import * as scoreBoard from "./scoreBoard";
 import * as userInput from "./user-input";
-import { Menu } from "./types/enums";
+import { SINGLE_DIGITS, MAX_DIGITS, Menu } from "./types/constants";
 import { InningResult } from "./types/interfaces";
-import { BASEBALL_NUMBERS, NUMBER_BASEBALL_DIGITS } from "./types/constants";
-import * as gameRecorder from "./gameRecorder";
-import * as gameStatistics from "./gameStatistics";
+import { BaseballNumbers, SingleDigit, ScoreCount, MenuType } from "./types/types";
+import { GameRecorder } from "./gameRecorder";
+import { GameStatistics } from "./gameStatistics";
 
-export async function start(): Promise<void> {
-  let isStopApplication = false;
+export class NumberBaseballGame {
+  private gameRecorder: GameRecorder;
+  private gameStats: GameStatistics;
 
-  while (!isStopApplication) {
-    const selectionResult: Menu = await userInput.selectMenu();
-
-    switch (selectionResult) {
-      case Menu.StartGame:
-        await playGame();
-        break;
-      case Menu.GameHistory:
-        gameRecorder.showHistory();
-        break;
-      case Menu.GameStatistics:
-        gameStatistics.showStatistics();
-        break;
-      case Menu.ExitApplication:
-        scoreBoard.showApplicationEnd();
-        isStopApplication = true;
-        break;
-      default:
-        break;
-    }
+  constructor(
+    gameRecorder: GameRecorder = GameRecorder.getInstance(),
+    gameStats: GameStatistics = GameStatistics.getInstance()
+  ) {
+    this.gameRecorder = gameRecorder;
+    this.gameStats = gameStats;
   }
-}
 
-async function playGame(): Promise<void> {
-  const computerNumbers = getRandomNumbers(NUMBER_BASEBALL_DIGITS);
-  const inningsToWin: number = await userInput.setInningsToWin();
+  public async start(): Promise<void> {
+    let isRunning = true;
 
-  scoreBoard.showGameSetting(computerNumbers);
-  const recordStartTime = gameRecorder.startRecord();
-  let isUserWin = false;
-  let lastInning: number = inningsToWin;
+    while (isRunning) {
+      const selectionResult: MenuType = await userInput.selectMenu();
 
-  for (let currentInning = 1; currentInning <= inningsToWin; ++currentInning) {
-    isUserWin = await playInning(computerNumbers);
-    if (isUserWin) {
-      lastInning = currentInning;
-      break;
+      switch (selectionResult) {
+        case Menu.StartGame:
+          await this.playGame();
+          break;
+        case Menu.GameHistory:
+          this.gameRecorder.showHistory();
+          break;
+        case Menu.GameStatistics:
+          this.gameStats.showStatistics();
+          break;
+        case Menu.ExitApplication:
+          scoreBoard.showApplicationEnd();
+          isRunning = false;
+          break;
+        default:
+          break;
+      }
     }
   }
 
-  scoreBoard.showGameEnd(isUserWin);
+  private async playGame(): Promise<void> {
+    const inningsToWin: number = await userInput.setInningsToWin();
+    this.gameRecorder.startNewRecord(inningsToWin);
 
-  gameRecorder.endRecord(isUserWin, recordStartTime, inningsToWin, lastInning);
-  scoreBoard.showRecordEnd();
-}
+    const computerNumbers = this.getRandomNumbers(MAX_DIGITS);
+    scoreBoard.showGameSetting(computerNumbers);
+    
+    let isUserWin = false;
+    let lastInning: number = inningsToWin;
 
-function getRandomNumbers(digits: number): number[] {
-  const randomNumbers = shuffle([...BASEBALL_NUMBERS]);
-
-  return randomNumbers.slice(0, digits);
-}
-
-async function playInning(computerNumbers: number[]): Promise<boolean> {
-  const userNumbers = await userInput.guessNumbers(NUMBER_BASEBALL_DIGITS);
-  const inningResult = checkBallCount(userNumbers, computerNumbers);
-  const isUserWin = inningResult.strikeCount === NUMBER_BASEBALL_DIGITS;
-
-  scoreBoard.showBallCount(inningResult);
-
-  return isUserWin;
-}
-
-function checkBallCount(
-  userNumbers: number[],
-  computerNumbers: number[]
-): InningResult {
-  const strikeCount = checkStrike(userNumbers, computerNumbers);
-  const ballCount = checkBall(userNumbers, computerNumbers);
-  const out = isOut(strikeCount, ballCount);
-
-  return { strikeCount, ballCount, out };
-}
-
-function checkStrike(userNumbers: number[], computerNumbers: number[]): number {
-  let strikeCount = 0;
-  userNumbers.filter((userNumber, userIndex) => {
-    computerNumbers.filter((computerNumber, computerIndex) => {
-      if (userNumber === computerNumber && userIndex === computerIndex) {
-        ++strikeCount;
+    for (let currentInning = 1; currentInning <= inningsToWin; ++currentInning) {
+      isUserWin = await this.playInning(computerNumbers);
+      if (isUserWin) {
+        lastInning = currentInning;
+        break;
       }
-    });
-  });
+    }
 
-  return strikeCount;
+    scoreBoard.showGameEnd(isUserWin);
+
+    this.gameRecorder.endRecord(isUserWin, lastInning);
+    scoreBoard.showRecordEnd();
+  }
+
+  private getRandomNumbers(digits: number): BaseballNumbers {
+    const randomNumbers = shuffle([...SINGLE_DIGITS]);
+    return randomNumbers.slice(0, digits) as BaseballNumbers;
+  }
+
+  private async playInning(computerNumbers: BaseballNumbers): Promise<boolean> {
+    const userNumbers = await userInput.guessNumbers(MAX_DIGITS);
+    const inningResult = this.checkBallCount(userNumbers, computerNumbers);
+    const isUserWin = inningResult.strikeCount === MAX_DIGITS;
+
+    scoreBoard.showBallCount(inningResult);
+
+    return isUserWin;
+  }
+
+  private checkBallCount(
+    userNumbers: BaseballNumbers,
+    computerNumbers: BaseballNumbers
+  ): InningResult {
+    const strikeCount = this.getStrikeCount(userNumbers, computerNumbers) as ScoreCount;
+    const ballCount = this.getBallCount(userNumbers, computerNumbers) as ScoreCount;
+    const out = this.isOut(strikeCount, ballCount);
+
+    return { strikeCount, ballCount, out };
+  }
+
+  private getStrikeCount(userNumbers: BaseballNumbers, computerNumbers: BaseballNumbers): ScoreCount {
+    return userNumbers.filter((num: SingleDigit, index: number) => num === computerNumbers[index]).length as ScoreCount;
+  }
+
+  private getBallCount(userNumbers: BaseballNumbers, computerNumbers: BaseballNumbers): ScoreCount {
+    return userNumbers.filter((num: SingleDigit, index: number) => computerNumbers.includes(num) && computerNumbers[index] !== num).length as ScoreCount;
+  }
+
+  private isOut(strikeCount: ScoreCount, ballCount: ScoreCount): boolean {
+    return strikeCount === 0 && ballCount === 0;
+  }
+
+
 }
 
-function checkBall(userNumbers: number[], computerNumbers: number[]): number {
-  let ballCount = 0;
-  userNumbers.filter((userNumber, userIndex) => {
-    computerNumbers.filter((computerNumber, computerIndex) => {
-      if (userNumber === computerNumber && userIndex !== computerIndex) {
-        ++ballCount;
-      }
-    });
-  });
-  return ballCount;
-}
-
-function isOut(strikeCount: number, ballCount: number): boolean {
-  return strikeCount === 0 && ballCount === 0;
-}
 
 function shuffle(array: number[]): number[] {
   for (let i = array.length - 1; i > 0; i--) {
