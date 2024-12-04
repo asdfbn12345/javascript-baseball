@@ -87,22 +87,22 @@ export class NumberBaseballGame {
     userNumbers: BaseballNumbers,
     computerNumbers: BaseballNumbers
   ): InningResult {
-    const strikeCount = this.getStrikeCount(userNumbers, computerNumbers) as ScoreCount;
-    const ballCount = this.getBallCount(userNumbers, computerNumbers) as ScoreCount;
+    const strikeCount = this.getStrikeCount(userNumbers, computerNumbers);
+    const ballCount = this.getBallCount(userNumbers, computerNumbers);
     const out = this.isOut(strikeCount, ballCount);
 
     return { strikeCount, ballCount, out };
   }
 
-  private getStrikeCount(userNumbers: BaseballNumbers, computerNumbers: BaseballNumbers): ScoreCount {
+  private getStrikeCount(userNumbers: BaseballNumbers, computerNumbers: BaseballNumbers): InningResult["strikeCount"] {
     return userNumbers.filter((num: SingleDigit, index: number) => num === computerNumbers[index]).length as ScoreCount;
   }
 
-  private getBallCount(userNumbers: BaseballNumbers, computerNumbers: BaseballNumbers): ScoreCount {
+  private getBallCount(userNumbers: BaseballNumbers, computerNumbers: BaseballNumbers): InningResult["ballCount"] {
     return userNumbers.filter((num: SingleDigit, index: number) => computerNumbers.includes(num) && computerNumbers[index] !== num).length as ScoreCount;
   }
 
-  private isOut(strikeCount: ScoreCount, ballCount: ScoreCount): boolean {
+  private isOut(strikeCount: ScoreCount, ballCount: ScoreCount): InningResult["out"] {
     return strikeCount === 0 && ballCount === 0;
   }
 

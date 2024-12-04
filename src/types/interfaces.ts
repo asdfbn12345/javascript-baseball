@@ -1,8 +1,9 @@
 import { UserType } from "./enums";
+import { ScoreCount } from "./types";
 
 export interface InningResult {
-  readonly strikeCount: 0 | 1 | 2 | 3;
-  readonly ballCount: 0 | 1 | 2 | 3;
+  readonly strikeCount: ScoreCount;
+  readonly ballCount: ScoreCount;
   readonly out: boolean;
 }
 

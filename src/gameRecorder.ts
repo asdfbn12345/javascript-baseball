@@ -50,7 +50,7 @@ export class GameRecorder {
       id: this.gameRecords.length + 1,
       startTime: new Date(),
       endTime: null,
-      inningsToWin,
+      inningsToWin: inningsToWin,
       lastInning: 0,
       winner: null,
     };
