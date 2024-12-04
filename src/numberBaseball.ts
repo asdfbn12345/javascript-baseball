@@ -1,7 +1,7 @@
 import * as scoreBoard from "./scoreBoard";
 import * as userInput from "./user-input";
 import { SINGLE_DIGITS, MAX_DIGITS, MENU } from "./types/constants";
-import { InningResult } from "./types/interfaces";
+import { GameState, InningResult } from "./types/interfaces";
 import { BaseballNumbers, SingleDigit, ScoreCount, MenuType } from "./types/types";
 import { GameRecorder } from "./gameRecorder";
 import { GameStatistics } from "./gameStatistics";
@@ -18,7 +18,7 @@ export class NumberBaseballGame {
     this.gameStats = gameStats;
   }
 
-  public async start(): Promise<void> {
+  public async applicationStart(): Promise<void> {
     let isRunning = true;
 
     while (isRunning) {
@@ -26,7 +26,7 @@ export class NumberBaseballGame {
 
       switch (selectionResult) {
         case MENU.StartGame:
-          await this.playGame();
+          await this.gameStart();
           break;
         case MENU.GameHistory:
           this.gameRecorder.showHistory();
@@ -44,15 +44,27 @@ export class NumberBaseballGame {
     }
   }
 
-  private async playGame(): Promise<void> {
-    const inningsToWin: number = await userInput.setInningsToWin();
+  private async gameStart(): Promise<void> {
+    const inningsToWin = await userInput.setInningsToWin();
     this.gameRecorder.startNewRecord(inningsToWin);
 
     const computerNumbers = this.getRandomNumbers(MAX_DIGITS);
     scoreBoard.showGameSetting(computerNumbers);
     
+    const { isUserWin, lastInning } = await this.playGame(computerNumbers, inningsToWin);
+
+    scoreBoard.showGameEnd(isUserWin);
+
+    this.gameRecorder.endRecord(isUserWin, lastInning);
+    scoreBoard.showRecordEnd();
+  }
+
+  private async playGame(
+    computerNumbers: BaseballNumbers,
+    inningsToWin: number
+  ): Promise<GameState> {
     let isUserWin = false;
-    let lastInning: number = inningsToWin;
+    let lastInning = inningsToWin;
 
     for (let currentInning = 1; currentInning <= inningsToWin; ++currentInning) {
       isUserWin = await this.playInning(computerNumbers);
@@ -62,10 +74,7 @@ export class NumberBaseballGame {
       }
     }
 
-    scoreBoard.showGameEnd(isUserWin);
-
-    this.gameRecorder.endRecord(isUserWin, lastInning);
-    scoreBoard.showRecordEnd();
+    return { isUserWin, lastInning };
   }
 
   private getRandomNumbers(digits: number): BaseballNumbers {
@@ -105,8 +114,6 @@ export class NumberBaseballGame {
   private isOut(strikeCount: InningResult["strikeCount"], ballCount: InningResult["ballCount"]): InningResult["out"] {
     return strikeCount === 0 && ballCount === 0;
   }
-
-
 }
 
 

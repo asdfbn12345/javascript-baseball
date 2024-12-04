@@ -1,6 +1,11 @@
 import { UserType } from "./enums";
 import { ScoreCount } from "./types";
 
+export interface GameState {
+  isUserWin: boolean;
+  lastInning: number;
+}
+
 export interface InningResult {
   readonly strikeCount: ScoreCount;
   readonly ballCount: ScoreCount;
