@@ -1,4 +1,4 @@
-import { Menu, SINGLE_DIGITS, MAX_DIGITS } from "./constants";
+import { MENU, SINGLE_DIGITS, MAX_DIGITS } from "./constants";
 
 export type SingleDigit = typeof SINGLE_DIGITS[number];
 
@@ -13,5 +13,5 @@ type Tuple<T, N extends number, R extends T[] = []> = R['length'] extends N ? R 
 
 export type BaseballNumbers = Tuple<SingleDigit, typeof MAX_DIGITS>;
 
-export type MenuType = typeof Menu[keyof typeof Menu];
+export type MenuType = typeof MENU[keyof typeof MENU];
 

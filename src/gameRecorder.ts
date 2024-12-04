@@ -1,6 +1,6 @@
 import { GameRecord } from "./types/interfaces";
 import { UserType } from "./types/enums";
-import { MESSAGES_BAR, RECORD_MESSAGES } from "./types/constants";
+import { MESSAGES_BAR, RECORDER_MESSAGES } from "./types/constants";
 
 export class GameRecorder {
   private static instance: GameRecorder;
@@ -58,10 +58,10 @@ export class GameRecorder {
 
   public endRecord(isUserWin: boolean, lastInning: number): void {
     if (!this.currentGameRecord) {
-      throw new Error(RECORD_MESSAGES.NOT_STARTED_ERROR);
+      throw new Error(RECORDER_MESSAGES.NOT_STARTED_ERROR);
     }
     if (lastInning < 1 || lastInning > this.currentGameRecord.inningsToWin) {
-      throw new Error(RECORD_MESSAGES.INVALID_INNINGS_ERROR);
+      throw new Error(RECORDER_MESSAGES.INVALID_INNINGS_ERROR);
     }
 
     const updatedRecord: GameRecord = {

@@ -1,6 +1,6 @@
 import * as scoreBoard from "./scoreBoard";
 import * as userInput from "./user-input";
-import { SINGLE_DIGITS, MAX_DIGITS, Menu } from "./types/constants";
+import { SINGLE_DIGITS, MAX_DIGITS, MENU } from "./types/constants";
 import { InningResult } from "./types/interfaces";
 import { BaseballNumbers, SingleDigit, ScoreCount, MenuType } from "./types/types";
 import { GameRecorder } from "./gameRecorder";
@@ -25,16 +25,16 @@ export class NumberBaseballGame {
       const selectionResult: MenuType = await userInput.selectMenu();
 
       switch (selectionResult) {
-        case Menu.StartGame:
+        case MENU.StartGame:
           await this.playGame();
           break;
-        case Menu.GameHistory:
+        case MENU.GameHistory:
           this.gameRecorder.showHistory();
           break;
-        case Menu.GameStatistics:
+        case MENU.GameStatistics:
           this.gameStats.showStatistics();
           break;
-        case Menu.ExitApplication:
+        case MENU.ExitApplication:
           scoreBoard.showApplicationEnd();
           isRunning = false;
           break;
@@ -102,7 +102,7 @@ export class NumberBaseballGame {
     return userNumbers.filter((num: SingleDigit, index: number) => computerNumbers.includes(num) && computerNumbers[index] !== num).length as ScoreCount;
   }
 
-  private isOut(strikeCount: ScoreCount, ballCount: ScoreCount): InningResult["out"] {
+  private isOut(strikeCount: InningResult["strikeCount"], ballCount: InningResult["ballCount"]): InningResult["out"] {
     return strikeCount === 0 && ballCount === 0;
   }
 

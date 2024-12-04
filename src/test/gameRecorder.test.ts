@@ -1,5 +1,5 @@
 import { GameRecorder } from "../gameRecorder";
-import { MESSAGES_BAR, RECORD_MESSAGES } from "../types/constants";
+import { MESSAGES_BAR, RECORDER_MESSAGES } from "../types/constants";
 import { UserType } from "../types/enums";
 
 describe('GameRecorder', () => {
@@ -46,7 +46,7 @@ describe('GameRecorder', () => {
   test('게임 기록 없이 종료하려고 하면 에러가 발생해야 함', () => {
     expect(() => {
       gameRecorder.endRecord(true, 3);
-    }).toThrow(RECORD_MESSAGES.NOT_STARTED_ERROR);
+    }).toThrow(RECORDER_MESSAGES.NOT_STARTED_ERROR);
   });
 
   test('showHistory는 게임 기록이 없을 때 빈 히스토리를 보여줘야 함', () => {

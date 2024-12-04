@@ -36,27 +36,27 @@ export class GameStatistics {
   }
 
   private showLeastInning(): void {
-    const { extremeValue, extremeValueId } = this.getExtremeAttribute("lastInning" as NumberProperties, false);
+    const { extremeValue, extremeValueId } = this.getExtremeAttribute("lastInning", false);
     console.log(STATISTICS_MESSAGES.LEAST_INNINGS(extremeValue, extremeValueId));
   }
 
   private showMostInning(): void {
-    const { extremeValue, extremeValueId } = this.getExtremeAttribute("lastInning" as NumberProperties, true);
+    const { extremeValue, extremeValueId } = this.getExtremeAttribute("lastInning", true);
     console.log(STATISTICS_MESSAGES.MOST_INNINGS(extremeValue, extremeValueId));
   }
 
   private showMostInningsToWin(): void {
-    const { mostValue, mostValueId } = this.getMostAttribute("inningsToWin" as NumberProperties);
+    const { mostValue, mostValueId } = this.getMostAttribute("inningsToWin");
     console.log(STATISTICS_MESSAGES.MOST_INNINGS_TO_WIN(mostValue, mostValueId));
   }
 
   private showMaxInningsToWin(): void {
-    const { extremeValue, extremeValueId } = this.getExtremeAttribute("inningsToWin" as NumberProperties, true);
+    const { extremeValue, extremeValueId } = this.getExtremeAttribute("inningsToWin", true);
     console.log(STATISTICS_MESSAGES.MAX_INNINGS_TO_WIN(extremeValue, extremeValueId));
   }
 
   private showMinInningsToWin(): void {
-    const { extremeValue, extremeValueId } = this.getExtremeAttribute("inningsToWin" as NumberProperties, false);
+    const { extremeValue, extremeValueId } = this.getExtremeAttribute("inningsToWin", false);
     console.log(STATISTICS_MESSAGES.MIN_INNINGS_TO_WIN(extremeValue, extremeValueId));
   }
 
@@ -72,12 +72,12 @@ export class GameStatistics {
   }
 
   private showComputerMostInningsToWin(): void {
-    const { mostValue } = this.getMostAttribute("inningsToWin" as NumberProperties, UserType.Computer);
+    const { mostValue } = this.getMostAttribute("inningsToWin", UserType.Computer);
     console.log(STATISTICS_MESSAGES.INNINGS_TO_WIN_COMPUTER_MOST_WINS(mostValue));
   }
 
   private showUserMostInningsToWin(): void {
-    const { mostValue } = this.getMostAttribute("inningsToWin" as NumberProperties, UserType.User);
+    const { mostValue } = this.getMostAttribute("inningsToWin", UserType.User);
     console.log(STATISTICS_MESSAGES.INNINGS_TO_WIN_USER_MOST_WINS(mostValue));
   }
 

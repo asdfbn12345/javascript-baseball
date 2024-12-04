@@ -21,16 +21,3 @@ type NumberPropertyNames<T> = {
 }[keyof T];
 
 export type NumberProperties = NumberPropertyNames<GameRecord>;
-
-export type ValidGameRecordId = number & { readonly brand: unique symbol };
-export type ValidInningsToWin = number & { readonly brand: unique symbol };
-
-export function createValidGameRecordId(id: number): ValidGameRecordId {
-  if (id < 1) throw new Error('Game record ID must be positive');
-  return id as ValidGameRecordId;
-}
-
-export function createValidInningsToWin(innings: number): ValidInningsToWin {
-  if (innings < 1) throw new Error('Innings to win must be positive');
-  return innings as ValidInningsToWin;
-}
